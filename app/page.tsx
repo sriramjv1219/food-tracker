@@ -17,17 +17,17 @@ const DATA = {
   },
   link: {
     text: "View on GitHub",
-    href: "https://github.com/yourusername/vercel-marketplace-mongodb",
+    href: "https://github.com/mongodb-developer/nextjs-template-mongodb",
   },
   footerLinks: [
     {
       text: "Docs",
-      href: "https://www.mongodb.com/docs/",
+      href: "https://www.mongodb.com/docs/?utm_campaign=devrel&utm_source=third-party-content&utm_medium=cta&utm_content=template-nextjs-mongodb&utm_term=jesse.hall",
       icon: "FileText",
     },
     {
       text: "MongoDB Atlas Login",
-      href: "https://account.mongodb.com/account/login",
+      href: "https://account.mongodb.com/account/login/?utm_campaign=devrel&utm_source=third-party-content&utm_medium=cta&utm_content=template-nextjs-mongodb&utm_term=jesse.hall",
       icon: "LogIn",
     },
   ],
