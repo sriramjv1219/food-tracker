@@ -1,6 +1,8 @@
 import Image from "next/image";
 import logo from "@/assets/logo.svg";
 import logoDark from "@/assets/logo-dark.svg";
+import vercelLogotypeLight from "@/assets/vercel-logotype-light.svg";
+import vercelLogotypeDark from "@/assets/vercel-logotype-dark.svg";
 import Link from "next/link";
 import { ArrowRight, FileText, LogIn } from "lucide-react";
 import { dbConnectionStatus } from "@/db/connection-status";
@@ -39,7 +41,7 @@ export default async function Home() {
     <div className="flex min-h-screen flex-col">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-5 md:max-w-lg md:px-0 lg:max-w-xl">
           <main className="flex flex-1 flex-col justify-center">
-            <div className="mb-6 md:mb-7">
+            <div className="flex gap-6 lg:gap-8 items-center mb-6 md:mb-7">
               <Image
                 className="lg:h-8 lg:w-auto dark:hidden"
                 src={logo}
@@ -51,6 +53,22 @@ export default async function Home() {
               <Image
                 className="hidden lg:h-8 lg:w-auto dark:block"
                 src={logoDark}
+                alt="MongoDB logo"
+                width={88}
+                height={24}
+                priority
+              />
+              <Image
+                className="lg:h-6 lg:w-auto dark:hidden"
+                src={vercelLogotypeLight}
+                alt="MongoDB logo"
+                width={88}
+                height={24}
+                priority
+              />
+              <Image
+                className="hidden lg:h-6 lg:w-auto dark:block"
+                src={vercelLogotypeDark}
                 alt="MongoDB logo"
                 width={88}
                 height={24}
