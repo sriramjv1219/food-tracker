@@ -12,7 +12,7 @@ export default function SignIn() {
           <p className="mt-2 text-gray-400">Sign in to track your meals</p>
         </div>
         <Button
-          onClick={() => signIn("google", { callbackUrl: "/" })}
+          onClick={() => signIn("google", { callbackUrl: "/meals" })}
           className="w-full"
           size="lg"
         >

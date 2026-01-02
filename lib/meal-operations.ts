@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import MealEntry, { IMealEntry, MealType, Source } from "@/models/MealEntry";
+import connectDB from "./mongoose";
 
 export interface MealEntryInput {
   mealType: MealType;
@@ -37,13 +38,19 @@ export async function bulkUpsertMeals({
   date,
   meals,
 }: BulkUpsertMealsParams) {
+  await connectDB();
+  
   if (!meals || meals.length === 0) {
     return { modifiedCount: 0, upsertedCount: 0 };
   }
 
   // Convert userId to ObjectId if it's a string
   const userObjectId =
-    typeof userId === "string" ? new mongoose.Types.ObjectId(userId) : userId;
+    typeof userId === "string" 
+      ? mongoose.Types.ObjectId.isValid(userId)
+        ? new mongoose.Types.ObjectId(userId)
+        : (() => { throw new Error(`Invalid userId format: ${userId}`); })()
+      : userId;
 
   // Normalize date to start of day (remove time component)
   const normalizedDate = new Date(date);
@@ -92,8 +99,14 @@ export async function deleteMealsForDate(
   userId: string | mongoose.Types.ObjectId,
   date: Date
 ) {
+  await connectDB();
+  
   const userObjectId =
-    typeof userId === "string" ? new mongoose.Types.ObjectId(userId) : userId;
+    typeof userId === "string" 
+      ? mongoose.Types.ObjectId.isValid(userId)
+        ? new mongoose.Types.ObjectId(userId)
+        : (() => { throw new Error(`Invalid userId format: ${userId}`); })()
+      : userId;
 
   const normalizedDate = new Date(date);
   normalizedDate.setHours(0, 0, 0, 0);
@@ -115,8 +128,14 @@ export async function getMealsForDate(
   userId: string | mongoose.Types.ObjectId,
   date: Date
 ): Promise<IMealEntry[]> {
+  await connectDB();
+  
   const userObjectId =
-    typeof userId === "string" ? new mongoose.Types.ObjectId(userId) : userId;
+    typeof userId === "string" 
+      ? mongoose.Types.ObjectId.isValid(userId)
+        ? new mongoose.Types.ObjectId(userId)
+        : (() => { throw new Error(`Invalid userId format: ${userId}`); })()
+      : userId;
 
   const normalizedDate = new Date(date);
   normalizedDate.setHours(0, 0, 0, 0);

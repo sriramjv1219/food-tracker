@@ -4,10 +4,10 @@ import { MealType, Source } from "@/models/MealEntry";
 // Single meal entry validation schema
 export const mealEntrySchema = z.object({
   mealType: z.nativeEnum(MealType, {
-    errorMap: () => ({ message: "Invalid meal type" }),
+    message: "Invalid meal type",
   }),
   source: z.nativeEnum(Source, {
-    errorMap: () => ({ message: "Invalid source" }),
+    message: "Invalid source",
   }),
   foodDescription: z
     .string()
@@ -19,7 +19,7 @@ export const mealEntrySchema = z.object({
 // Bulk save meals validation schema
 export const saveMealsSchema = z.object({
   date: z.coerce.date({
-    errorMap: () => ({ message: "Invalid date format" }),
+    message: "Invalid date format",
   }),
   meals: z
     .array(mealEntrySchema)
@@ -30,7 +30,7 @@ export const saveMealsSchema = z.object({
 // Fetch meals validation schema
 export const fetchMealsSchema = z.object({
   date: z.coerce.date({
-    errorMap: () => ({ message: "Invalid date format" }),
+    message: "Invalid date format",
   }),
 });
 
