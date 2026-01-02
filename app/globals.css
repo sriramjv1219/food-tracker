@@ -75,3 +75,20 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes border-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-border-spin {
+  animation: border-spin 3s linear infinite;
+}
+
+.group:has(.hover-cancel:hover) > div:first-child {
+  opacity: 0 !important;
+}

@@ -43,13 +43,20 @@ export function MealInput({
   const label = mealTypeLabels[mealType];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">{label}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <Card className="group relative overflow-hidden transition-all hover:shadow-lg">
+      {/* Animated gradient border on hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+        <div className="absolute inset-0 animate-border-spin bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 dark:from-gray-300 dark:via-gray-400 dark:to-gray-500 blur-sm" />
+        <div className="absolute inset-[1px] bg-background rounded-lg" />
+      </div>
+      
+      <div className="relative z-10">
+        <CardHeader>
+          <CardTitle className="text-lg">{label}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
         {/* Source Selection */}
-        <div className="space-y-3">
+        <div className="space-y-3 hover-cancel">
           <Label>Source *</Label>
           <div className="flex flex-col gap-3">
             {Object.values(Source).map((sourceValue) => {
@@ -57,7 +64,7 @@ export function MealInput({
               return (
                 <label
                   key={sourceValue}
-                  className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                  className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors hover-cancel ${
                     source === sourceValue
                       ? "border-primary bg-primary/5"
                       : "border-border hover:border-primary/50 hover:bg-accent"
@@ -99,6 +106,7 @@ export function MealInput({
           </div>
         )}
       </CardContent>
+      </div>
     </Card>
   );
 }
