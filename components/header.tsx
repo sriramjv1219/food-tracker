@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { ThemeToggle } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
-import { LogOut, LayoutDashboard, Utensils } from "lucide-react";
+import { LogOut, LayoutDashboard, Utensils, UserCheck } from "lucide-react";
+import { UserRole } from "@/lib/constants";
 
 export function Header() {
   const pathname = usePathname();
@@ -22,6 +23,15 @@ export function Header() {
       label: "Dashboard",
       icon: LayoutDashboard,
     },
+    ...(session?.user?.role === UserRole.SUPER_ADMIN
+      ? [
+          {
+            href: "/approval",
+            label: "Approval",
+            icon: UserCheck,
+          },
+        ]
+      : []),
   ];
 
   return (

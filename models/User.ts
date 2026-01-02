@@ -1,4 +1,7 @@
 import mongoose, { Schema, Model, Document } from "mongoose";
+import { UserRole } from "@/lib/constants";
+
+export { UserRole };
 
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
@@ -6,6 +9,8 @@ export interface IUser extends Document {
   email: string;
   image?: string;
   provider?: string;
+  role: UserRole;
+  approved: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -31,6 +36,15 @@ const UserSchema = new Schema<IUser>(
       type: String,
       trim: true,
       lowercase: true,
+    },
+    role: {
+      type: String,
+      enum: Object.values(UserRole),
+      default: UserRole.MEMBER,
+    },
+    approved: {
+      type: Boolean,
+      default: false,
     },
   },
   {

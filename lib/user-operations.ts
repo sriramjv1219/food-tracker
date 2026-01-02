@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
-import User, { IUser } from "@/models/User";
+import User, { IUser, UserRole } from "@/models/User";
 import connectDB from "./mongoose";
+import { SUPER_ADMIN_EMAIL } from "@/lib/constants";
 
 export interface CreateOrUpdateUserParams {
   email: string;
@@ -34,25 +35,33 @@ export async function createOrUpdateUser({
 }: CreateOrUpdateUserParams): Promise<IUser> {
   await connectDB();
 
-  // Perform upsert: update if exists, create if not
-  const user = await User.findOneAndUpdate(
-    { email: email.toLowerCase().trim() },
-    {
-      $set: {
-        ...(name && { name }),
-        ...(image && { image }),
-        ...(provider && { provider: provider.toLowerCase() }),
-      },
-      $setOnInsert: {
-        email: email.toLowerCase().trim(),
-      },
-    },
-    {
-      upsert: true, // Create if doesn't exist
-      new: true, // Return the updated document
-      runValidators: true, // Run schema validators
+  const normalizedEmail = email.toLowerCase().trim();
+  const isSuperAdmin = normalizedEmail === SUPER_ADMIN_EMAIL;
+
+  // Check if user exists
+  let user = await User.findOne({ email: normalizedEmail });
+
+  if (user) {
+    // Update existing user
+    user.name = name || user.name;
+    user.image = image || user.image;
+    user.provider = provider ? provider.toLowerCase() : user.provider;
+    user.role = isSuperAdmin ? UserRole.SUPER_ADMIN : UserRole.MEMBER;
+    if (isSuperAdmin) {
+      user.approved = true;
     }
-  );
+    await user.save();
+  } else {
+    // Create new user
+    user = await User.create({
+      email: normalizedEmail,
+      name,
+      image,
+      provider: provider?.toLowerCase(),
+      role: isSuperAdmin ? UserRole.SUPER_ADMIN : UserRole.MEMBER,
+      approved: isSuperAdmin,
+    });
+  }
 
   return user;
 }
@@ -86,4 +95,36 @@ export async function findUserById(
     typeof userId === "string" ? new mongoose.Types.ObjectId(userId) : userId;
 
   return await User.findById(userObjectId);
+}
+
+/**
+ * Gets all unapproved users.
+ *
+ * @returns Array of unapproved user documents
+ */
+export async function getUnapprovedUsers(): Promise<IUser[]> {
+  await connectDB();
+
+  return await User.find({ approved: false }).sort({ createdAt: -1 });
+}
+
+/**
+ * Approves a user by their ID.
+ *
+ * @param userId - User's ObjectId or string
+ * @returns Updated user document or null if not found
+ */
+export async function approveUser(
+  userId: string | mongoose.Types.ObjectId
+): Promise<IUser | null> {
+  await connectDB();
+
+  const userObjectId =
+    typeof userId === "string" ? new mongoose.Types.ObjectId(userId) : userId;
+
+  return await User.findByIdAndUpdate(
+    userObjectId,
+    { $set: { approved: true } },
+    { new: true, runValidators: true }
+  );
 }
