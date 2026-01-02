@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { inter } from "./fonts";
+import SessionProvider from "@/components/session-provider";
 
 export const metadata: Metadata = {
-  title: "Next.js + MongoDB",
-  description: "Use MongoDB with Next.js",
+  title: "Food Tracker",
+  description: "Track your meals with MongoDB and Next.js",
 };
 
 export default function RootLayout({
@@ -14,7 +15,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} dark`}>
-      <body>{children}</body>
+      <body>
+        <SessionProvider>{children}</SessionProvider>
+      </body>
     </html>
   );
 }
