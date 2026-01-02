@@ -1,19 +1,19 @@
 {
-  "name": "nextjs-template-mongodb",
+  "name": "food-tracker",
   "version": "0.1.0",
   "private": true,
   "description": "A Next.js template for building applications with MongoDB, featuring TypeScript and shadcn/ui / Tailwind CSS integration",
   "author": {
-    "name": "Jesse Hall",
-    "url": "https://github.com/codeSTACKr"
+    "name": "Sriram JV",
+    "url": "https://github.com/sriramjv1219"
   },
-  "homepage": "https://github.com/mongodb-developer/nextjs-template-mongodb#readme",
+  "homepage": "https://github.com/sriramjv1219/food-tracker#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mongodb-developer/nextjs-template-mongodb.git"
+    "url": "git+https://github.com/sriramjv1219/food-tracker.git"
   },
   "bugs": {
-    "url": "https://github.com/mongodb-developer/nextjs-template-mongodb/issues"
+    "url": "https://github.com/sriramjv1219/food-tracker/issues"
   },
   "keywords": [
     "nextjs",
