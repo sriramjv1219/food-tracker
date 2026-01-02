@@ -1,15 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { MealType, Source } from "@/types/meal";
 import { Home, Store, Ban } from "lucide-react";
@@ -57,26 +49,34 @@ export function MealInput({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Source Selection */}
-        <div className="space-y-2">
-          <Label htmlFor={`${mealType}-source`}>Source *</Label>
-          <Select value={source} onValueChange={onSourceChange}>
-            <SelectTrigger id={`${mealType}-source`}>
-              <SelectValue placeholder="Select source" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.values(Source).map((sourceValue) => {
-                const Icon = sourceIcons[sourceValue];
-                return (
-                  <SelectItem key={sourceValue} value={sourceValue}>
-                    <div className="flex items-center gap-2">
-                      <Icon className="h-4 w-4" />
-                      {sourceLabels[sourceValue]}
-                    </div>
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
+        <div className="space-y-3">
+          <Label>Source *</Label>
+          <div className="flex flex-col gap-3">
+            {Object.values(Source).map((sourceValue) => {
+              const Icon = sourceIcons[sourceValue];
+              return (
+                <label
+                  key={sourceValue}
+                  className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                    source === sourceValue
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/50 hover:bg-accent"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name={`${mealType}-source`}
+                    value={sourceValue}
+                    checked={source === sourceValue}
+                    onChange={(e) => onSourceChange(e.target.value as Source)}
+                    className="h-4 w-4 text-primary"
+                  />
+                  <Icon className="h-5 w-5" />
+                  <span className="font-medium">{sourceLabels[sourceValue]}</span>
+                </label>
+              );
+            })}
+          </div>
         </div>
 
         {/* Food Description */}

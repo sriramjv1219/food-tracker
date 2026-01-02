@@ -160,6 +160,13 @@ export default function MealsPage() {
     setDate(new Date());
   };
 
+  const minDate = new Date("2026-01-01");
+  minDate.setHours(0, 0, 0, 0);
+  
+  const currentDate = new Date(date);
+  currentDate.setHours(0, 0, 0, 0);
+  
+  const isAtMinDate = currentDate.getTime() <= minDate.getTime();
   const isToday =
     date.toDateString() === new Date().toDateString();
 
@@ -180,7 +187,12 @@ export default function MealsPage() {
           <span className="font-medium">{formattedDate}</span>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={goToPreviousDay}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={goToPreviousDay}
+            disabled={isAtMinDate}
+          >
             ← Previous
           </Button>
           {!isToday && (
