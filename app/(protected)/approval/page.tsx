@@ -55,7 +55,7 @@ export default function ApprovalPage() {
       } catch (error) {
         toast({
           title: "Error",
-          description: "Failed to fetch unapproved users.",
+          description: "Failed to fetch unapproved users." + (error instanceof Error ? ` ${error.message}` : ""),
           variant: "destructive",
         });
       } finally {
@@ -90,7 +90,7 @@ export default function ApprovalPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to approve user.",
+        description: "Failed to approve user."+ (error instanceof Error ? ` ${error.message}` : ""),
         variant: "destructive",
       });
     } finally {
