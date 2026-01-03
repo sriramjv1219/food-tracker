@@ -6,8 +6,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: "Food Tracker",
-  description: "Track your meals with MongoDB and Next.js",
+  title: "Habit Tracker",
+  description: "Track your meals & workouts with elegance",
 };
 
 export default function RootLayout({
