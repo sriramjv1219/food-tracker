@@ -6,7 +6,7 @@ import { ThemeToggle } from "@/components/theme-provider";
 
 export default function SignIn() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-gray-950 via-gray-900 to-black dark:from-gray-950 dark:via-gray-900 dark:to-black light:from-gray-100 light:via-blue-50 light:to-purple-50">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background">
       {/* Theme Toggle Button */}
       <div className="absolute top-6 right-6 z-20 animate-fade-in">
         <ThemeToggle />
@@ -22,16 +22,16 @@ export default function SignIn() {
       {/* Glassmorphism Container */}
       <div className="relative z-10 w-full max-w-md animate-fade-in-up">
         {/* Content Container with Animated Border */}
-        <div className="relative space-y-8 rounded-2xl border border-white/30 dark:border-white/30 light:border-gray-300 bg-gray-950/80 dark:bg-gray-950/80 light:bg-white/90 p-10 text-center shadow-2xl backdrop-blur-xl animate-border-pulse">
+        <div className="relative space-y-8 rounded-2xl border bg-card p-10 text-center shadow-2xl backdrop-blur-xl animate-border-pulse">
           {/* Logo/Title with Staggered Animation */}
           <div className="space-y-3">
-            <h2 className="text-5xl font-bold tracking-tight text-white dark:text-white light:text-gray-900 animate-fade-in-delay-1">
+            <h2 className="text-5xl font-bold tracking-tight text-foreground animate-fade-in-delay-1">
               Habit Tracker
             </h2>
-            <p className="text-lg text-gray-300 dark:text-gray-300 light:text-gray-600 animate-fade-in-delay-2">
+            <p className="text-lg text-muted-foreground animate-fade-in-delay-2">
               Slow habits. Strong results.
             </p>
-            <p className="text-lg text-gray-300 dark:text-gray-300 light:text-gray-600 animate-fade-in-delay-2">
+            <p className="text-lg text-muted-foreground animate-fade-in-delay-2">
               Track your meals & workouts with elegance
             </p>
           </div>
@@ -39,7 +39,7 @@ export default function SignIn() {
           {/* Divider */}
           <div className="relative animate-fade-in-delay-3">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10 dark:border-white/10 light:border-gray-200"></div>
+              <div className="w-full border-t border-border"></div>
             </div>
           </div>
 
@@ -47,7 +47,7 @@ export default function SignIn() {
           <div className="animate-fade-in-delay-4">
             <Button
               onClick={() => signIn("google", { callbackUrl: "/meals" })}
-              className="group relative w-full overflow-hidden bg-white dark:bg-white light:bg-gray-900 px-8 py-6 text-base font-semibold text-black dark:text-black light:text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-white/20 dark:hover:shadow-white/20 light:hover:shadow-gray-900/20"
+              className="group relative w-full overflow-hidden bg-primary text-primary-foreground px-8 py-6 text-base font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl"
               size="lg"
             >
               <span className="relative z-10 flex items-center justify-center gap-3">
@@ -75,7 +75,7 @@ export default function SignIn() {
             </Button>
           </div>
           {/* Footer Text */}
-          <p className="text-sm text-gray-400 dark:text-gray-400 light:text-gray-500 animate-fade-in-delay-5">
+          <p className="text-sm text-muted-foreground animate-fade-in-delay-5">
             Secure sign-in powered by Google
           </p>
         </div>
