@@ -19,8 +19,6 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
 
-      console.log("Sriram: Creating or update user Signing in user with email:", user.email);
-
       try {
         // Create or update user in database
         const dbUser = await createOrUpdateUser({
@@ -29,8 +27,6 @@ export const authOptions: NextAuthOptions = {
           image: user.image || undefined,
           provider: account?.provider || "google",
         });
-
-        console.log("Sriram: After creating user", dbUser);
 
         // Store the MongoDB _id and user details for use in session
         user.id = dbUser._id.toString();
