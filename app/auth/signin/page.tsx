@@ -1,10 +1,21 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-provider";
 
 export default function SignIn() {
+  const { status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/meals");
+    }
+  }, [status, router]);
+  
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background">
       {/* Theme Toggle Button */}
