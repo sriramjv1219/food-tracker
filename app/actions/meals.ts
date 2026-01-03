@@ -148,7 +148,16 @@ export async function fetchMealsAction(
     const mealEntries = await getMealsForDate(session.user.id, normalizedDate);
 
     // 5. Group meals by mealType for easy UI consumption
-    const groupedMeals: Record<MealType, any> = {
+    const groupedMeals: Record<
+      MealType,
+      {
+        mealType: MealType;
+        source: string;
+        foodDescription?: string;
+        createdAt: string;
+        updatedAt: string;
+      } | null
+    > = {
       [MealType.BREAKFAST]: null,
       [MealType.LUNCH]: null,
       [MealType.EVENING_SNACKS]: null,

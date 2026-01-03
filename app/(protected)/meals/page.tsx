@@ -98,6 +98,7 @@ export default function MealsPage() {
   const handleSubmit = async () => {
     // Filter out meals without a source selected
     const mealsToSave = Object.entries(meals)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .filter(([_, meal]) => meal.source !== "")
       .map(([mealType, meal]) => ({
         mealType: mealType as MealType,
@@ -133,6 +134,7 @@ export default function MealsPage() {
           variant: "destructive",
         });
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
         title: "Error",
