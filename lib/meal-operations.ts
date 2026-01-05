@@ -23,9 +23,10 @@ export interface BulkUpsertMealsParams {
  *
  * @example
  * ```typescript
+ * // Date should be pre-normalized to UTC midnight by caller
  * const result = await bulkUpsertMeals({
  *   userId: user._id,
- *   date: new Date('2026-01-03'),
+ *   date: new Date(Date.UTC(2026, 0, 3, 0, 0, 0, 0)), // Jan 3, 2026 UTC
  *   meals: [
  *     { mealType: MealType.BREAKFAST, source: Source.HOME, foodDescription: 'Oatmeal' },
  *     { mealType: MealType.LUNCH, source: Source.OUTSIDE, foodDescription: 'Burger' }
@@ -52,9 +53,8 @@ export async function bulkUpsertMeals({
         : (() => { throw new Error(`Invalid userId format: ${userId}`); })()
       : userId;
 
-  // Normalize date to start of day (remove time component)
-  const normalizedDate = new Date(date);
-  normalizedDate.setHours(0, 0, 0, 0);
+  // Use the date as-is (should already be normalized to UTC midnight by caller)
+  const normalizedDate = date;
 
   // Build bulkWrite operations
   const operations = meals.map((meal) => ({
@@ -108,8 +108,8 @@ export async function deleteMealsForDate(
         : (() => { throw new Error(`Invalid userId format: ${userId}`); })()
       : userId;
 
-  const normalizedDate = new Date(date);
-  normalizedDate.setHours(0, 0, 0, 0);
+  // Use the date as-is (should already be normalized to UTC midnight by caller)
+  const normalizedDate = date;
 
   return await MealEntry.deleteMany({
     userId: userObjectId,
@@ -137,11 +137,11 @@ export async function getMealsForDate(
         : (() => { throw new Error(`Invalid userId format: ${userId}`); })()
       : userId;
 
-  const normalizedDate = new Date(date);
-  normalizedDate.setHours(0, 0, 0, 0);
-
-  const endOfDay = new Date(normalizedDate);
-  endOfDay.setHours(23, 59, 59, 999);
+  // Use the date as-is (should already be normalized to UTC midnight by caller)
+  const normalizedDate = date;
+  
+  // Create end of day in UTC (23:59:59.999)
+  const endOfDay = new Date(normalizedDate.getTime() + 86399999); // Add 23:59:59.999 in milliseconds
 
   return await MealEntry.find({
     userId: userObjectId,

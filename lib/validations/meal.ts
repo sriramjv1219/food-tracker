@@ -18,8 +18,8 @@ export const mealEntrySchema = z.object({
 
 // Bulk save meals validation schema
 export const saveMealsSchema = z.object({
-  date: z.coerce.date({
-    message: "Invalid date format",
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
+    message: "Invalid date format. Expected YYYY-MM-DD",
   }),
   meals: z
     .array(mealEntrySchema)
@@ -29,8 +29,8 @@ export const saveMealsSchema = z.object({
 
 // Fetch meals validation schema
 export const fetchMealsSchema = z.object({
-  date: z.coerce.date({
-    message: "Invalid date format",
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
+    message: "Invalid date format. Expected YYYY-MM-DD",
   }),
 });
 
