@@ -56,9 +56,10 @@ export async function saveMealsAction(
     // 2. Input validation
     const validatedInput = saveMealsSchema.parse(input);
 
-    // 3. Normalize date to calendar day (remove time component)
-    const normalizedDate = new Date(validatedInput.date);
-    normalizedDate.setHours(0, 0, 0, 0);
+    // 3. Parse date string as UTC to avoid timezone shifts
+    // Input format: "YYYY-MM-DD"
+    const [year, month, day] = validatedInput.date.split('-').map(Number);
+    const normalizedDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
 
     // 4. Perform bulk upsert
     const result = await bulkUpsertMeals({
@@ -140,9 +141,10 @@ export async function fetchMealsAction(
     // 2. Input validation
     const validatedInput = fetchMealsSchema.parse(input);
 
-    // 3. Normalize date to calendar day
-    const normalizedDate = new Date(validatedInput.date);
-    normalizedDate.setHours(0, 0, 0, 0);
+    // 3. Parse date string as UTC to avoid timezone shifts
+    // Input format: "YYYY-MM-DD"
+    const [year, month, day] = validatedInput.date.split('-').map(Number);
+    const normalizedDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
 
     // 4. Fetch meals from database
     const mealEntries = await getMealsForDate(session.user.id, normalizedDate);
@@ -204,13 +206,13 @@ export async function fetchMealsAction(
  * Server action to fetch meal entries for a date range.
  * Useful for weekly or monthly views.
  *
- * @param startDate - Start of date range
- * @param endDate - End of date range
+ * @param startDate - Start of date range (YYYY-MM-DD format)
+ * @param endDate - End of date range (YYYY-MM-DD format)
  * @returns Success response with meals array or error response
  */
 export async function fetchMealsRangeAction(
-  startDate: Date,
-  endDate: Date
+  startDate: string,
+  endDate: string
 ): Promise<
   ActionResponse<
     Array<{
@@ -232,22 +234,39 @@ export async function fetchMealsRangeAction(
       };
     }
 
-    // 2. Validate date range
-    if (startDate > endDate) {
+    // 2. Parse and validate date strings
+    const startDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    const endDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    
+    if (!startDateRegex.test(startDate) || !endDateRegex.test(endDate)) {
+      return {
+        success: false,
+        error: "Invalid date format. Expected YYYY-MM-DD",
+      };
+    }
+
+    // Parse dates as UTC
+    const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
+    const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
+    const startDateObj = new Date(Date.UTC(startYear, startMonth - 1, startDay, 0, 0, 0, 0));
+    const endDateObj = new Date(Date.UTC(endYear, endMonth - 1, endDay, 0, 0, 0, 0));
+
+    // 3. Validate date range
+    if (startDateObj > endDateObj) {
       return {
         success: false,
         error: "Start date must be before end date",
       };
     }
 
-    // 3. Fetch meals for each date in the range
+    // 4. Generate array of dates in the range
     const dateArray: Date[] = [];
-    const currentDate = new Date(startDate);
-    currentDate.setHours(0, 0, 0, 0);
+    const currentDate = new Date(startDateObj);
 
-    while (currentDate <= endDate) {
+    while (currentDate <= endDateObj) {
       dateArray.push(new Date(currentDate));
-      currentDate.setDate(currentDate.getDate() + 1);
+      // Add one day using UTC to avoid timezone issues
+      currentDate.setUTCDate(currentDate.getUTCDate() + 1);
     }
 
     // Fetch meals for all dates

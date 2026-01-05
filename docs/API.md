@@ -72,7 +72,7 @@ if (result.success) {
 import { fetchMealsAction } from "@/app/actions/meals";
 
 const result = await fetchMealsAction({
-  date: new Date("2026-01-03")
+  date: "2026-01-03",
 });
 
 if (result.success) {
@@ -120,8 +120,8 @@ type MealData = {
 import { fetchMealsRangeAction } from "@/app/actions/meals";
 
 const result = await fetchMealsRangeAction(
-  new Date("2026-01-01"),
-  new Date("2026-01-07")
+  "2026-01-01",
+  "2026-01-07"
 );
 
 if (result.success) {

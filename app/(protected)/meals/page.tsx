@@ -40,7 +40,9 @@ export default function MealsPage() {
     async function fetchMeals() {
       setIsLoading(true);
       try {
-        const result = await fetchMealsAction({ date });
+        // Convert Date to YYYY-MM-DD string to avoid timezone issues
+        const dateString = date.toISOString().split('T')[0];
+        const result = await fetchMealsAction({ date: dateString });
 
         if (result.success) {
           const newMeals: MealsState = {
@@ -117,8 +119,10 @@ export default function MealsPage() {
 
     setIsSaving(true);
     try {
+      // Convert Date to YYYY-MM-DD string to avoid timezone issues
+      const dateString = date.toISOString().split('T')[0];
       const result = await saveMealsAction({
-        date,
+        date: dateString,
         meals: mealsToSave,
       });
 
