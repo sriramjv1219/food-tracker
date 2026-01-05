@@ -15,7 +15,7 @@ export function Header() {
   const navItems = [
     {
       href: "/meals",
-      label: "Daily Meals",
+      label: "Daily Tracker",
       icon: Utensils,
     },
     {
