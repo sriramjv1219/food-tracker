@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { MealInput } from "@/components/meal-input";
+import { WorkoutInput } from "@/components/workout-input";
 import { MealType, Source } from "@/types/meal";
+import { WorkoutType } from "@/types/workout";
 import { saveMealsAction, fetchMealsAction } from "@/app/actions/meals";
+import { saveWorkoutsAction, fetchWorkoutsAction } from "@/app/actions/workouts";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, Calendar } from "lucide-react";
 
@@ -26,6 +29,26 @@ export default function MealsPage() {
     [MealType.EVENING_SNACKS]: { source: "", foodDescription: "" },
     [MealType.DINNER]: { source: "", foodDescription: "" },
   });
+  const [selectedWorkouts, setSelectedWorkouts] = useState<Record<WorkoutType, boolean>>({
+    [WorkoutType.WALKING]: false,
+    [WorkoutType.YOGA]: false,
+    [WorkoutType.CYCLING]: false,
+    [WorkoutType.GYM]: false,
+    [WorkoutType.WEIGHT_LIFTING_HOME]: false,
+    [WorkoutType.DANCE_ZUMBA]: false,
+    [WorkoutType.NO_WORKOUT]: false,
+    [WorkoutType.OTHER]: false,
+  });
+  const [workoutDescriptions, setWorkoutDescriptions] = useState<Record<WorkoutType, string>>({
+    [WorkoutType.WALKING]: "",
+    [WorkoutType.YOGA]: "",
+    [WorkoutType.CYCLING]: "",
+    [WorkoutType.GYM]: "",
+    [WorkoutType.WEIGHT_LIFTING_HOME]: "",
+    [WorkoutType.DANCE_ZUMBA]: "",
+    [WorkoutType.NO_WORKOUT]: "",
+    [WorkoutType.OTHER]: "",
+  });
 
   // Format date for display
   const formattedDate = date.toLocaleDateString("en-US", {
@@ -35,16 +58,21 @@ export default function MealsPage() {
     day: "numeric",
   });
 
-  // Fetch meals for the selected date
+  // Fetch meals and workout for the selected date
   useEffect(() => {
-    async function fetchMeals() {
+    async function fetchData() {
       setIsLoading(true);
       try {
         // Convert Date to YYYY-MM-DD string to avoid timezone issues
         const dateString = date.toISOString().split('T')[0];
-        const result = await fetchMealsAction({ date: dateString });
+        
+        // Fetch meals and workouts in parallel
+        const [mealsResult, workoutsResult] = await Promise.all([
+          fetchMealsAction({ date: dateString }),
+          fetchWorkoutsAction({ date: dateString }),
+        ]);
 
-        if (result.success) {
+        if (mealsResult.success) {
           const newMeals: MealsState = {
             [MealType.BREAKFAST]: { source: "", foodDescription: "" },
             [MealType.LUNCH]: { source: "", foodDescription: "" },
@@ -53,7 +81,7 @@ export default function MealsPage() {
           };
 
           // Populate with fetched data
-          Object.entries(result.data.meals).forEach(([mealType, mealData]) => {
+          Object.entries(mealsResult.data.meals).forEach(([mealType, mealData]) => {
             if (mealData) {
               newMeals[mealType as MealType] = {
                 source: mealData.source as Source,
@@ -64,14 +92,69 @@ export default function MealsPage() {
 
           setMeals(newMeals);
         }
+        
+        if (workoutsResult.success && workoutsResult.data.workouts.length > 0) {
+          // Reset workout selections
+          const newSelectedWorkouts: Record<WorkoutType, boolean> = {
+            [WorkoutType.WALKING]: false,
+            [WorkoutType.YOGA]: false,
+            [WorkoutType.CYCLING]: false,
+            [WorkoutType.GYM]: false,
+            [WorkoutType.WEIGHT_LIFTING_HOME]: false,
+            [WorkoutType.DANCE_ZUMBA]: false,
+            [WorkoutType.NO_WORKOUT]: false,
+            [WorkoutType.OTHER]: false,
+          };
+          const newWorkoutDescriptions: Record<WorkoutType, string> = {
+            [WorkoutType.WALKING]: "",
+            [WorkoutType.YOGA]: "",
+            [WorkoutType.CYCLING]: "",
+            [WorkoutType.GYM]: "",
+            [WorkoutType.WEIGHT_LIFTING_HOME]: "",
+            [WorkoutType.DANCE_ZUMBA]: "",
+            [WorkoutType.NO_WORKOUT]: "",
+            [WorkoutType.OTHER]: "",
+          };
+          
+          // Populate with fetched workout data
+          workoutsResult.data.workouts.forEach((workout) => {
+            newSelectedWorkouts[workout.workoutType] = true;
+            newWorkoutDescriptions[workout.workoutType] = workout.description || "";
+          });
+          
+          setSelectedWorkouts(newSelectedWorkouts);
+          setWorkoutDescriptions(newWorkoutDescriptions);
+        } else {
+          // Reset workouts if no data for this date
+          setSelectedWorkouts({
+            [WorkoutType.WALKING]: false,
+            [WorkoutType.YOGA]: false,
+            [WorkoutType.CYCLING]: false,
+            [WorkoutType.GYM]: false,
+            [WorkoutType.WEIGHT_LIFTING_HOME]: false,
+            [WorkoutType.DANCE_ZUMBA]: false,
+            [WorkoutType.NO_WORKOUT]: false,
+            [WorkoutType.OTHER]: false,
+          });
+          setWorkoutDescriptions({
+            [WorkoutType.WALKING]: "",
+            [WorkoutType.YOGA]: "",
+            [WorkoutType.CYCLING]: "",
+            [WorkoutType.GYM]: "",
+            [WorkoutType.WEIGHT_LIFTING_HOME]: "",
+            [WorkoutType.DANCE_ZUMBA]: "",
+            [WorkoutType.NO_WORKOUT]: "",
+            [WorkoutType.OTHER]: "",
+          });
+        }
       } catch (error) {
-        console.error("Error fetching meals:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }
     }
 
-    fetchMeals();
+    fetchData();
   }, [date]);
 
   const handleSourceChange = (mealType: MealType, source: Source) => {
@@ -97,6 +180,75 @@ export default function MealsPage() {
     }));
   };
 
+  const handleWorkoutToggle = (workoutType: WorkoutType) => {
+    const isCurrentlySelected = selectedWorkouts[workoutType];
+    const willBeSelected = !isCurrentlySelected;
+    
+    // If selecting "Could not workout today", deselect all other workouts
+    if (workoutType === WorkoutType.NO_WORKOUT && willBeSelected) {
+      setSelectedWorkouts({
+        [WorkoutType.WALKING]: false,
+        [WorkoutType.YOGA]: false,
+        [WorkoutType.CYCLING]: false,
+        [WorkoutType.GYM]: false,
+        [WorkoutType.WEIGHT_LIFTING_HOME]: false,
+        [WorkoutType.DANCE_ZUMBA]: false,
+        [WorkoutType.NO_WORKOUT]: true,
+        [WorkoutType.OTHER]: false,
+      });
+      
+      // Clear all descriptions except NO_WORKOUT
+      setWorkoutDescriptions({
+        [WorkoutType.WALKING]: "",
+        [WorkoutType.YOGA]: "",
+        [WorkoutType.CYCLING]: "",
+        [WorkoutType.GYM]: "",
+        [WorkoutType.WEIGHT_LIFTING_HOME]: "",
+        [WorkoutType.DANCE_ZUMBA]: "",
+        [WorkoutType.NO_WORKOUT]: "",
+        [WorkoutType.OTHER]: "",
+      });
+      return;
+    }
+    
+    // If selecting any other workout, deselect "Could not workout today"
+    if (workoutType !== WorkoutType.NO_WORKOUT && willBeSelected) {
+      setSelectedWorkouts((prev) => ({
+        ...prev,
+        [workoutType]: true,
+        [WorkoutType.NO_WORKOUT]: false,
+      }));
+      
+      // Clear NO_WORKOUT description
+      setWorkoutDescriptions((prev) => ({
+        ...prev,
+        [WorkoutType.NO_WORKOUT]: "",
+      }));
+      return;
+    }
+    
+    // Normal toggle behavior (deselecting)
+    setSelectedWorkouts((prev) => ({
+      ...prev,
+      [workoutType]: !prev[workoutType],
+    }));
+    
+    // Clear description when unchecking
+    if (isCurrentlySelected) {
+      setWorkoutDescriptions((prev) => ({
+        ...prev,
+        [workoutType]: "",
+      }));
+    }
+  };
+
+  const handleWorkoutDescriptionChange = (workoutType: WorkoutType, description: string) => {
+    setWorkoutDescriptions((prev) => ({
+      ...prev,
+      [workoutType]: description,
+    }));
+  };
+
   const handleSubmit = async () => {
     // Filter out meals without a source selected
     const mealsToSave = Object.entries(meals)
@@ -108,10 +260,33 @@ export default function MealsPage() {
         foodDescription: meal.foodDescription,
       }));
 
-    if (mealsToSave.length === 0) {
+    // Prepare workouts to save
+    const workoutsToSave = Object.entries(selectedWorkouts)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .filter(([_, isSelected]) => isSelected)
+      .map(([workoutType]) => ({
+        workoutType: workoutType as WorkoutType,
+        description: workoutDescriptions[workoutType as WorkoutType] || "",
+      }));
+
+    // Check if there's data to save
+    const hasWorkouts = workoutsToSave.length > 0;
+    const hasMeals = mealsToSave.length > 0;
+
+    if (!hasWorkouts && !hasMeals) {
       toast({
-        title: "No meals to save",
-        description: "Please select at least one meal source.",
+        title: "No data to save",
+        description: "Please select at least one meal or workout.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate OTHER workout type has description
+    if (selectedWorkouts[WorkoutType.OTHER] && !workoutDescriptions[WorkoutType.OTHER].trim()) {
+      toast({
+        title: "Missing description",
+        description: "Please provide a description for 'Other' workout type.",
         variant: "destructive",
       });
       return;
@@ -121,20 +296,47 @@ export default function MealsPage() {
     try {
       // Convert Date to YYYY-MM-DD string to avoid timezone issues
       const dateString = date.toISOString().split('T')[0];
-      const result = await saveMealsAction({
-        date: dateString,
-        meals: mealsToSave,
-      });
-
-      if (result.success) {
+      
+      // Save meals and workouts in parallel
+      const promises = [];
+      
+      if (hasMeals) {
+        promises.push(
+          saveMealsAction({
+            date: dateString,
+            meals: mealsToSave,
+          })
+        );
+      }
+      
+      if (hasWorkouts) {
+        promises.push(
+          saveWorkoutsAction({
+            date: dateString,
+            workouts: workoutsToSave,
+          })
+        );
+      }
+      
+      const results = await Promise.all(promises);
+      
+      // Check if all operations succeeded
+      const allSuccess = results.every((result) => result.success);
+      
+      if (allSuccess) {
         toast({
           title: "Success!",
-          description: result.data.message,
+          description: hasWorkouts && hasMeals 
+            ? "Meals and workouts saved successfully"
+            : hasWorkouts 
+            ? "Workouts saved successfully"
+            : "Meals saved successfully",
         });
       } else {
+        const failedResult = results.find((result) => !result.success);
         toast({
           title: "Error",
-          description: result.error,
+          description: failedResult?.success === false ? failedResult.error : "Failed to save data",
           variant: "destructive",
         });
       }
@@ -142,7 +344,7 @@ export default function MealsPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to save meals. Please try again.",
+        description: "Failed to save data. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -180,9 +382,9 @@ export default function MealsPage() {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold">Daily Meal Tracker</h1>
+        <h1 className="text-3xl font-bold">Daily Tracker</h1>
         <p className="text-muted-foreground">
-          Track your meals for better health insights
+          Track your meals and workouts for better health insights
         </p>
       </div>
 
@@ -224,20 +426,34 @@ export default function MealsPage() {
         </div>
       ) : (
         <>
+          {/* Workout Input */}
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold">Workouts</h2>
+            <WorkoutInput
+              selectedWorkouts={selectedWorkouts}
+              descriptions={workoutDescriptions}
+              onWorkoutToggle={handleWorkoutToggle}
+              onDescriptionChange={handleWorkoutDescriptionChange}
+            />
+          </div>
+
           {/* Meal Inputs */}
-          <div className="grid gap-4 md:grid-cols-2">
-            {Object.values(MealType).map((mealType) => (
-              <MealInput
-                key={mealType}
-                mealType={mealType}
-                source={meals[mealType].source}
-                foodDescription={meals[mealType].foodDescription}
-                onSourceChange={(source) => handleSourceChange(mealType, source)}
-                onDescriptionChange={(desc) =>
-                  handleDescriptionChange(mealType, desc)
-                }
-              />
-            ))}
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold">Meals</h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              {Object.values(MealType).map((mealType) => (
+                <MealInput
+                  key={mealType}
+                  mealType={mealType}
+                  source={meals[mealType].source}
+                  foodDescription={meals[mealType].foodDescription}
+                  onSourceChange={(source) => handleSourceChange(mealType, source)}
+                  onDescriptionChange={(desc) =>
+                    handleDescriptionChange(mealType, desc)
+                  }
+                />
+              ))}
+            </div>
           </div>
 
           {/* Save Button */}
@@ -256,7 +472,7 @@ export default function MealsPage() {
               ) : (
                 <>
                   <Save className="h-4 w-4" />
-                  Save All Meals
+                  Save All Data
                 </>
               )}
             </Button>
